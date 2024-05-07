@@ -3,15 +3,15 @@ import axios from 'axios';
 import { ref, onMounted } from 'vue'
 import names from "../names";
 
-const avatarEndpoint = "https://avatars.dicebear.com/v2/avataaars/";
-const apiOptions = "options[mood][]=happy";
+const avatarEndpoint = "https://api.dicebear.com/8.x/avataaars/svg";
+const apiOptions = "&backgroundType=gradientLinear&mouth=smile";
 
 const backendUrl = "http://localhost:8000";
 const beneficiariesEndpoint = `${backendUrl}/api/beneficiaries`;
 const loginEndpoint = `${backendUrl}/login`;
 
 function getAvatar(name) {
-  return`${avatarEndpoint}${name}.svg?${apiOptions}`;
+  return`${avatarEndpoint}?seed=${name}${apiOptions}`;
 }
 
 const beneficiaries = ref(null)
@@ -32,7 +32,7 @@ const beneficiaryNames = [...Array(10).keys()].map(number => ({
 <template>
   <div class="App">
     <header class="App-header">
-      <h1>Gestionnaire de bénéficaires Reconnect</h1>
+      <h1>Gestionnaire de bénéficiaires Reconnect</h1>
       <hr/>
       <h3>Non stockés</h3>
       <div class="Beneficiaries-list">
@@ -42,7 +42,7 @@ const beneficiaryNames = [...Array(10).keys()].map(number => ({
           </div>
       </div>
       <hr/>
-      <h3>En base de donnés</h3>
+      <h3>En base de données</h3>
       <div class="Beneficiaries-list">
         <div v-for="beneficiary in beneficiaries" :key="beneficiary.id" class="Beneficiary-card">
             <img :src="getAvatar(beneficiary.name)"/>
