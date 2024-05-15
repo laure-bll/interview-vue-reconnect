@@ -3,12 +3,13 @@ import { beneficiariesEndpoint } from "@/api/endpoints";
 import { getAvatar } from "@/helpers/avatar";
 import BeneficiaryFormModale from "@/components/Beneficiary/BeneficiaryFormModale.vue";
 import axios from "axios";
+import dateFormatter from "@/helpers/dateFormatter";
 
 const props = defineProps<{
   id: string;
   name: string;
-  creationDate?: string;
-  creatorEmail?: string;
+  createdAt?: string;
+  creator?: string;
   displayActions?: boolean;
   refetchData?: (options?: string) => void;
 }>();
@@ -30,12 +31,10 @@ const deleteBeneficiary = async (id: string) => {
 
     <v-card-title> {{ props.name }} </v-card-title>
 
-    <v-card-subtitle v-if="creationDate">
-      Date de création : {{ creationDate }}
+    <v-card-subtitle v-if="createdAt">
+      Date de création : {{ dateFormatter(new Date(createdAt)) }}
     </v-card-subtitle>
-    <v-card-subtitle v-if="creatorEmail">
-      Par : {{ props.creatorEmail }}
-    </v-card-subtitle>
+    <v-card-subtitle v-if="creator"> Par : {{ props.creator }} </v-card-subtitle>
 
     <v-card-actions v-if="displayActions">
       <v-btn

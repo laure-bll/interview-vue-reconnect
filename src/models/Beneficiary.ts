@@ -1,7 +1,8 @@
 interface BeneficiaryType {
   name: string;
   id: number;
-  creationDate?: string;
+  creator?: string;
+  createdAt?: string;
 }
 
 export default BeneficiaryType;

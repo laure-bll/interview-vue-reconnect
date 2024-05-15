@@ -19,6 +19,8 @@ defineProps<{
           :refetchData="refetchData"
           :name="beneficiary.name"
           :id="beneficiary.id.toString()"
+          :creator="beneficiary.creator"
+          :createdAt="beneficiary.createdAt"
           :displayActions="displayActions"
         />
       </div>
