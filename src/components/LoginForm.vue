@@ -3,6 +3,7 @@ import { loginEndpoint } from "@/api/endpoints";
 import router from "@/router";
 import ErrorAlert from "@/components/ErrorAlert.vue";
 import rqt from "@/api/requests";
+import axios from "axios";
 
 export default {
   data: () => ({
@@ -24,21 +25,20 @@ export default {
 
       if (valid) {
         this.loading = true;
+
         try {
-          this.login = await rqt({
-            url: loginEndpoint,
-            data: {
-              email: this.email.value,
-              password: this.password.value,
-            },
+          const res = await axios.post(loginEndpoint, {
+            email: this.email.value,
+            password: this.password.value,
           });
 
-          const token = JSON.stringify(this.login.data.token);
+          const token = JSON.stringify(res.data.token);
           localStorage.setItem("api_token", token);
           router.push("/");
+          this.loading = false;
         } catch (err) {
-          this.errorMessage = err.response.data();
-        } finally {
+          console.log(err);
+          this.errorMessage = err.toString();
           this.loading = false;
         }
       } else {
