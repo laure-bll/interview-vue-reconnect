@@ -2,8 +2,8 @@
 import { beneficiariesEndpoint } from "@/api/endpoints";
 import { getAvatar } from "@/helpers/avatar";
 import BeneficiaryFormModale from "@/components/Beneficiary/BeneficiaryFormModale.vue";
-import axios from "axios";
 import dateFormatter from "@/helpers/dateFormatter";
+import rqt from "@/api/requests";
 
 const props = defineProps<{
   id: string;
@@ -15,13 +15,16 @@ const props = defineProps<{
 }>();
 
 const deleteBeneficiary = async (id: string) => {
-  try {
-    await axios.delete(`${beneficiariesEndpoint}/${id}`);
-
-    if (props.refetchData) props.refetchData();
-  } catch (err) {
-    console.log(err);
-  }
+  await rqt({
+    url: `${beneficiariesEndpoint}/${id}`,
+    method: "DELETE",
+    successCallback: (data) => {
+      if (props.refetchData) props.refetchData();
+    },
+    failureCallback: (err) => {
+      console.log(err);
+    },
+  });
 };
 </script>
 

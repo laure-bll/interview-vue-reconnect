@@ -1,8 +1,8 @@
 <script>
 import { loginEndpoint } from "@/api/endpoints";
-import axios from "axios";
 import router from "@/router";
 import ErrorAlert from "@/components/ErrorAlert.vue";
+import rqt from "@/api/requests";
 
 export default {
   data: () => ({
@@ -15,7 +15,7 @@ export default {
       rules: [(value) => !!value.length ?? "Le mot de passe est requis"],
     },
     loading: false,
-    user: null,
+    login: null,
     errorMessage: null,
   }),
   methods: {
@@ -25,19 +25,19 @@ export default {
       if (valid) {
         this.loading = true;
         try {
-          this.user = await axios.post(
-            loginEndpoint,
-            {
+          this.login = await rqt({
+            url: loginEndpoint,
+            data: {
               email: this.email.value,
               password: this.password.value,
             },
-            {
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-          router.push("dashboard");
+          });
+
+          const token = JSON.stringify(this.login.data.token);
+          localStorage.setItem("api_token", token);
+          router.push("/");
         } catch (err) {
-          this.errorMessage = err.toString();
+          this.errorMessage = err.response.data();
         } finally {
           this.loading = false;
         }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import getConnectedUser from "@/api/currentUser";
 import { beneficiariesEndpoint } from "@/api/endpoints";
+import rqt from "@/api/requests";
 import ErrorAlert from "@/components/ErrorAlert.vue";
-import axios from "axios";
 import { reactive, ref, type Ref } from "vue";
 
 const props = defineProps<{
@@ -22,35 +23,48 @@ const setName = (event: any) => {
   newProfile.name = event.target?.value;
 };
 
+const closeModale = () => {
+  newProfile.name = "";
+  isModaleOpened.value = false;
+  errorMessage.value = "";
+  isLoading.value = false;
+};
+
 const createOrUpdateBeneficiary = async () => {
   isLoading.value = true;
 
-  try {
-    if (newProfile?.name?.length === 0) {
-      throw new Error("Le nom est requis.");
-    } else {
-      const method: string = props.id !== undefined ? "PUT" : "POST";
-      const url =
-        props.id !== undefined
-          ? `${beneficiariesEndpoint}/${props.id}`
-          : beneficiariesEndpoint;
+  if (newProfile?.name?.length === 0) {
+    errorMessage.value = "Le nom est requis.";
+    isLoading.value = false;
+  } else {
+    const method = props.id !== undefined ? "PUT" : "POST";
+    const url =
+      props.id !== undefined
+        ? `${beneficiariesEndpoint}/${props.id}`
+        : beneficiariesEndpoint;
 
-      await axios({
+    const creator = getConnectedUser()?.username;
+
+    if (creator) {
+      await rqt({
         url,
         method,
-        data: { name: newProfile.name },
-        headers: { "Content-Type": "application/json" },
+        data: { name: newProfile.name, creator },
+        successCallback: (data) => {
+          closeModale();
+          if (props.refetchData) {
+            props.refetchData();
+          }
+        },
+
+        failureCallback: (err) => {
+          errorMessage.value = err?.response?.data?.message ?? "Une erreur est survenue.";
+          isLoading.value = false;
+        },
       });
-
-      isModaleOpened.value = false;
-    }
-  } catch (err) {
-    errorMessage.value = `${err}`;
-  } finally {
-    isLoading.value = false;
-
-    if (props.refetchData) {
-      props.refetchData();
+    } else {
+      errorMessage.value = "Une erreur est survenue. Merci de vous connecter à nouveau";
+      isLoading.value = false;
     }
   }
 };
@@ -75,6 +89,7 @@ const createOrUpdateBeneficiary = async () => {
               <v-text-field
                 label="Nom du bénéficiaire"
                 @change="setName"
+                v-on:keyup.enter="createOrUpdateBeneficiary"
                 autofocus
                 required
               ></v-text-field>
@@ -91,7 +106,7 @@ const createOrUpdateBeneficiary = async () => {
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text="Annuler" variant="plain" @click="isModaleOpened = false"></v-btn>
+          <v-btn text="Annuler" variant="plain" @click="closeModale"></v-btn>
           <v-btn
             color="primary"
             text="Sauvegarder"

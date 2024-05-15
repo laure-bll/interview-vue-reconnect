@@ -1,21 +1,28 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/HomeView.vue";
 import Login from "@/views/LoginView.vue";
+import getConnectedUser from "@/api/currentUser";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: "/",
-      name: "home",
+      path: "/login",
+      name: "login",
       component: Login,
     },
     {
-      path: "/dashboard",
+      path: "/",
       name: "dashboard",
       component: Home,
     },
   ],
+});
+
+router.beforeEach(async (to, from, next) => {
+  const canAccess = !!getConnectedUser()?.username;
+  if (to.name !== "login" && !canAccess) next({ name: "login" });
+  else next();
 });
 
 export default router;
