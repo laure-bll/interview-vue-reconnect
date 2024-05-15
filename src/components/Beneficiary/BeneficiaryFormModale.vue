@@ -9,13 +9,13 @@ const props = defineProps<{
   name?: string;
   textButton: string;
   title: string;
-  refetchData?: () => void;
+  refetchData?: (options?: string) => void;
 }>();
 
 const isModaleOpened: Ref<boolean> = ref(false);
 const isLoading: Ref<boolean> = ref(false);
 const errorMessage: Ref<null | string> = ref(null);
-const newProfile = reactive({ name: props.name });
+const newProfile = reactive({ name: "" });
 
 const setName = (event: any) => {
   errorMessage.value = "";
@@ -24,21 +24,26 @@ const setName = (event: any) => {
 
 const createOrUpdateBeneficiary = async () => {
   isLoading.value = true;
-  const method: string = props.id !== undefined ? "PUT" : "POST";
-  const url =
-    props.id !== undefined
-      ? `${beneficiariesEndpoint}/${props.id}`
-      : beneficiariesEndpoint;
 
   try {
-    await axios({
-      url,
-      method,
-      data: { name: newProfile.name },
-      headers: { "Content-Type": "application/json" },
-    });
+    if (newProfile?.name?.length === 0) {
+      throw new Error("Le nom est requis.");
+    } else {
+      const method: string = props.id !== undefined ? "PUT" : "POST";
+      const url =
+        props.id !== undefined
+          ? `${beneficiariesEndpoint}/${props.id}`
+          : beneficiariesEndpoint;
 
-    isModaleOpened.value = false;
+      await axios({
+        url,
+        method,
+        data: { name: newProfile.name },
+        headers: { "Content-Type": "application/json" },
+      });
+
+      isModaleOpened.value = false;
+    }
   } catch (err) {
     errorMessage.value = `${err}`;
   } finally {
@@ -68,7 +73,7 @@ const createOrUpdateBeneficiary = async () => {
           <v-row dense>
             <v-col cols="12">
               <v-text-field
-                label="Name"
+                label="Nom du bénéficiaire"
                 @change="setName"
                 autofocus
                 required
@@ -76,7 +81,9 @@ const createOrUpdateBeneficiary = async () => {
             </v-col>
           </v-row>
           <v-row v-if="errorMessage">
-            <ErrorAlert :errorMessage="errorMessage" />
+            <v-col cols="12">
+              <ErrorAlert :errorMessage="errorMessage" />
+            </v-col>
           </v-row>
         </v-card-text>
 

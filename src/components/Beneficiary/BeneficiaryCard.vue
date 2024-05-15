@@ -10,7 +10,7 @@ const props = defineProps<{
   creationDate?: string;
   creatorEmail?: string;
   displayActions?: boolean;
-  refetchData?: () => void;
+  refetchData?: (options?: string) => void;
 }>();
 
 const deleteBeneficiary = async (id: string) => {

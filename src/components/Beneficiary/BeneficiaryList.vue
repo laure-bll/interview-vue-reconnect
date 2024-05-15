@@ -6,7 +6,7 @@ defineProps<{
   beneficiaries: BeneficiaryType[];
   title: string;
   displayActions?: boolean;
-  refetchData?: () => void;
+  refetchData?: (options?: string) => void;
 }>();
 </script>
 

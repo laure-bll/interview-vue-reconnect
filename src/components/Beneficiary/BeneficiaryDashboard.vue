@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import axios from "axios";
-import { ref, type Ref, onMounted, reactive, watch, onUpdated } from "vue";
+import { ref, type Ref, onMounted, reactive } from "vue";
 import names from "@/names";
 import { beneficiariesEndpoint } from "@/api/endpoints";
 import BeneficiaryList from "@/components/Beneficiary/BeneficiaryList.vue";
 import type BeneficiaryType from "@/models/Beneficiary.ts";
 import SearchBar from "@/components/SearchBar.vue";
+import BeneficiaryFormModale from "@/components/Beneficiary/BeneficiaryFormModale.vue";
 
 const data: { beneficiaries: null | BeneficiaryType[] } = reactive({
   beneficiaries: null,
@@ -13,9 +14,9 @@ const data: { beneficiaries: null | BeneficiaryType[] } = reactive({
 
 const isFetching: Ref<boolean> = ref(true);
 
-const getBeneficiaries = async () => {
+const getBeneficiaries = async (options?: string) => {
   try {
-    const response = await axios.get(beneficiariesEndpoint);
+    const response = await axios.get(beneficiariesEndpoint + (options ?? ""));
     data.beneficiaries = response.data["hydra:member"];
   } catch (err) {
     console.log(err);
@@ -24,7 +25,7 @@ const getBeneficiaries = async () => {
   }
 };
 
-const refetchData = () => getBeneficiaries();
+const refetchData = (options?: string) => getBeneficiaries(options);
 onMounted(() => getBeneficiaries());
 
 const beneficiaryNames: BeneficiaryType[] = [...Array(10).keys()].map(
@@ -38,8 +39,12 @@ const beneficiaryNames: BeneficiaryType[] = [...Array(10).keys()].map(
 <template>
   <v-card class="mx-auto bg-transparent" max-width="65%">
     <v-container fluid>
-      <v-btn> Créer un bénéficiaire </v-btn>
-      <SearchBar label="Rechercher un bénéficiaire" />
+      <BeneficiaryFormModale
+        title="Nouveau bénéficiaire"
+        textButton="Créer un bénéficiaire"
+        :refetchData="refetchData"
+      />
+      <SearchBar label="Rechercher un bénéficiaire" :refetchData="refetchData" />
       <BeneficiaryList title="Non stockés" :beneficiaries="beneficiaryNames" />
       <div v-if="data?.beneficiaries">
         <BeneficiaryList
