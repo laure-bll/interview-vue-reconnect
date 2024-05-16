@@ -9,6 +9,11 @@ export const accessToken = localStorage.getItem("api_token");
 export const getConnectedUser = () => {
   if (accessToken) {
     const user: UserType = jwtDecode(accessToken);
+
+    if (Date.now() >= user?.exp * 1000) {
+      router.push("login");
+    }
+
     return user;
   }
 
