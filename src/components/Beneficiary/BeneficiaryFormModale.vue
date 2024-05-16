@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import getConnectedUser from "@/api/currentUser";
+import { getConnectedUser } from "@/api/currentUser";
 import { beneficiariesEndpoint } from "@/api/endpoints";
 import rqt from "@/api/requests";
 import ErrorAlert from "@/components/ErrorAlert.vue";
@@ -50,7 +50,7 @@ const createOrUpdateBeneficiary = async () => {
         url,
         method,
         data: { name: newProfile.name, creator },
-        successCallback: (data) => {
+        successCallback: () => {
           closeModale();
           if (props.refetchData) {
             props.refetchData();

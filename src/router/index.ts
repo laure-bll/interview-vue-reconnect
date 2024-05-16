@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/HomeView.vue";
 import Login from "@/views/LoginView.vue";
-import getConnectedUser from "@/api/currentUser";
+import { getConnectedUser } from "@/api/currentUser";
+import NotFound from "@/views/NotFoundView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,12 +17,17 @@ const router = createRouter({
       name: "dashboard",
       component: Home,
     },
+    {
+      path: "/:catchAll(.*)",
+      name: "notfound",
+      component: NotFound,
+    },
   ],
 });
 
 router.beforeEach(async (to, from, next) => {
-  const canAccess = !!getConnectedUser()?.username;
-  if (to.name !== "login" && !canAccess) next({ name: "login" });
+  const canAccess: string | null = getConnectedUser()?.username;
+  if (to.name !== "login" && !canAccess?.length) next({ name: "login" });
   else next();
 });
 

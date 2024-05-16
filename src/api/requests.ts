@@ -1,5 +1,5 @@
-import router from "@/router";
 import axios, { HttpStatusCode } from "axios";
+import { accessToken } from "@/api/currentUser";
 
 interface RequestParams {
   url: string;
@@ -22,14 +22,13 @@ const rqt = ({
     data,
     headers: {
       "Content-Type": "application/json",
-      Authorization:
-        "Bearer " + JSON.parse(`${localStorage.getItem("api_token")}`),
+      Authorization: "Bearer " + JSON.parse(`${accessToken}`),
     },
   })
     .then((data) => successCallback(data))
     .catch((err) => {
-      if (err?.data?.response?.status === HttpStatusCode.Unauthorized) {
-        router.push("login");
+      if (err?.response?.data?.code === HttpStatusCode.Unauthorized) {
+        return router.push("login");
       } else {
         return failureCallback(err);
       }

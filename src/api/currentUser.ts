@@ -1,15 +1,45 @@
 import type UserType from "@/models/User";
 import jwtDecode from "jwt-decode";
+import { refreshLoginEndpoint } from "./endpoints";
+import axios from "axios";
+import router from "@/router";
 
-const getConnectedUser = () => {
-  const token = localStorage.getItem("api_token");
+export const accessToken = localStorage.getItem("api_token");
 
-  if (token) {
-    const user: UserType = jwtDecode(token);
+export const getConnectedUser = () => {
+  if (accessToken) {
+    const user: UserType = jwtDecode(accessToken);
     return user;
   }
 
   return null;
 };
 
-export default getConnectedUser;
+export const refreshToken = async (token: string) => {
+  try {
+    const res = await axios.post(refreshLoginEndpoint, {
+      refreshToken: token,
+    });
+
+    const accessToken = JSON.stringify(res.data.token);
+    localStorage.setItem("api_token", accessToken);
+  } catch (err) {
+    router.push("login");
+  }
+};
+
+export const getAccessToken = () => {
+  const user = getConnectedUser();
+
+  if (user) {
+    const expiration = user.exp;
+
+    if (Date.now() >= expiration * 1000) {
+      refreshToken("refreshToken");
+    }
+
+    return `Bearer ${accessToken}`;
+  }
+
+  return null;
+};

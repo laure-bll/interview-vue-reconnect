@@ -1,61 +1,58 @@
-<script>
-import { loginEndpoint } from "@/api/endpoints";
+<script setup lang="ts">
+import { loginEndpoint, backendUrl } from "@/api/endpoints";
 import router from "@/router";
-import ErrorAlert from "@/components/ErrorAlert.vue";
-import rqt from "@/api/requests";
 import axios from "axios";
+import ErrorAlert from "@/components/ErrorAlert.vue";
+import { ref, type Ref, reactive } from "vue";
 
-export default {
-  data: () => ({
-    email: {
-      value: "",
-      rules: [(value) => !!value.length ?? "Un email valide est requis"],
-    },
-    password: {
-      value: "",
-      rules: [(value) => !!value.length ?? "Le mot de passe est requis"],
-    },
-    loading: false,
-    login: null,
-    errorMessage: null,
-  }),
-  methods: {
-    async validate() {
-      const { valid } = await this.$refs.form.validate();
+const loading: Ref<boolean> = ref(false);
+const errorMessage: Ref<null | string> = ref(null);
+const credentials = reactive({
+  email: "",
+  password: "",
+});
 
-      if (valid) {
-        this.loading = true;
+const validate = async () => {
+  const email: string = credentials.email;
+  const password: string = credentials.password;
+  const valid: boolean = !!email.length && !!password.length;
 
-        try {
-          const res = await axios.post(loginEndpoint, {
-            email: this.email.value,
-            password: this.password.value,
-          });
+  if (valid) {
+    loading.value = true;
 
-          const token = JSON.stringify(res.data.token);
-          localStorage.setItem("api_token", token);
-          router.push("/");
-          this.loading = false;
-        } catch (err) {
-          console.log(err);
-          this.errorMessage = err.toString();
-          this.loading = false;
+    try {
+      const res = await axios.post(
+        loginEndpoint,
+        {
+          email: email,
+          password: password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      } else {
-        this.errorMessage = "Merci de remplir tous les champs.";
-      }
-    },
-    resetValidation() {
-      this.$refs.form.resetValidation();
-      this.errorMessage = null;
-    },
-    setEmail(value) {
-      this.email.value = value;
-    },
-    setPassword(value) {
-      this.password.value = value;
-    },
-  },
+      );
+
+      const token = JSON.stringify(res.data.token);
+      localStorage.setItem("api_token", token);
+      loading.value = false;
+      router.push("dashboard");
+    } catch (err) {
+      errorMessage.value = err.toString();
+      loading.value = false;
+    }
+  } else {
+    errorMessage.value = "Merci de remplir tous les champs.";
+  }
+};
+
+const setEmail = (e: any) => (credentials.email = e.target?.value);
+const setPassword = (e: any) => (credentials.password = e.target?.value);
+
+const resetValidation = () => {
+  errorMessage.value = null;
+  loading.value = false;
 };
 </script>
 
@@ -64,19 +61,18 @@ export default {
     <v-container>
       <v-form ref="form">
         <v-text-field
-          v-model="email.value"
-          :rules="email.rules"
+          type="email"
+          :rules="[(value) => !!value || 'Un email valide est requis']"
           label="Email"
           @click="resetValidation"
-          @onChange="setEmail"
+          @change="setEmail"
         ></v-text-field>
         <v-text-field
-          v-model="password.value"
-          :rules="password.rules"
+          :rules="[(value) => !!value || 'Le mot de passe est requis']"
           type="password"
           label="Mot de passe"
           @click="resetValidation"
-          @onChange="setPassword"
+          @change="setPassword"
         ></v-text-field>
 
         <v-divider></v-divider>
@@ -90,5 +86,7 @@ export default {
       </v-form>
     </v-container>
   </v-card>
-  <ErrorAlert :errorMessage="errorMessage" />
+  <div v-if="errorMessage">
+    <ErrorAlert :errorMessage="errorMessage" />
+  </div>
 </template>

@@ -2,7 +2,7 @@
 import { logoutEndpoint } from "@/api/endpoints";
 import router from "@/router";
 import { onMounted, ref, type Ref } from "vue";
-import getConnectedUser from "@/api/currentUser";
+import { getConnectedUser } from "@/api/currentUser";
 import rqt from "@/api/requests";
 
 const username: Ref<null | string> = ref(null);
@@ -13,9 +13,9 @@ const onExit = async () => {
     url: logoutEndpoint,
     method: "POST",
     data: {
-      // refresh_token: cookie.get("refresh_token"),
+      // refresh_token: accessToken,
     },
-    successCallback: (data) => {
+    successCallback: () => {
       localStorage.removeItem("api_token");
       router.push("login");
     },
