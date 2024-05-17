@@ -1,4 +1,4 @@
-const names = [
+const names: string[] = [
   "David",
   "Sarah",
   "David",
@@ -30,7 +30,7 @@ const names = [
   "Patricia",
   "James",
   "Robert",
-  "Patricia"
+  "Patricia",
 ];
 
 export default names;
