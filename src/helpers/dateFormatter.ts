@@ -1,9 +1,12 @@
-const dateFormatter = (date: Date) => {
-  const day = date.getDate();
-  const month = date.getMonth();
-  const year = date.getFullYear();
+const dateFormatter = (date: string) => {
+  const formattedDate = new Date(date).toLocaleString("fr-FR", {
+    timeZone: "Europe/Paris",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
 
-  return `${day}/${month < 10 ? `0${month}` : month}/${year}`;
+  return formattedDate;
 };
 
 export default dateFormatter;

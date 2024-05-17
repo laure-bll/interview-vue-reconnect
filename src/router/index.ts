@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/HomeView.vue";
 import Login from "@/views/LoginView.vue";
-import { getConnectedUser } from "@/api/currentUser";
+import { getConnectedUser } from "@/api/auth";
 import NotFound from "@/views/NotFoundView.vue";
 
 const router = createRouter({
@@ -26,8 +26,9 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  const canAccess: string | null = getConnectedUser()?.username;
-  if (to.name !== "login" && !canAccess?.length) next({ name: "login" });
+  const canAccess = getConnectedUser()?.username;
+  if (to.name !== "login" && !canAccess) next({ name: "login" });
+  else if (to.name === "login" && !!canAccess) next({ name: "dashboard" });
   else next();
 });
 

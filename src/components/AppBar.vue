@@ -1,30 +1,26 @@
 <script setup lang="ts">
 import { logoutEndpoint } from "@/api/endpoints";
-import router from "@/router";
+import { refreshToken, logout, getConnectedUser } from "@/api/auth";
 import { onMounted, ref, type Ref } from "vue";
-import { getConnectedUser } from "@/api/currentUser";
 import rqt from "@/api/requests";
 
 const username: Ref<null | string> = ref(null);
 const isAdmin: Ref<boolean> = ref(false);
 
 const onExit = async () => {
-  await rqt({
-    url: logoutEndpoint,
-    method: "POST",
-    data: {
-      // refresh_token: accessToken,
-    },
-    successCallback: () => {
-      localStorage.removeItem("api_token");
-      router.push("login");
-    },
-    failureCallback: (err) => {
-      console.log(err);
-      localStorage.removeItem("api_token");
-      router.push("login");
-    },
-  });
+  try {
+    await rqt({
+      url: logoutEndpoint,
+      method: "POST",
+      data: {
+        refresh_token: JSON.parse(`${refreshToken}`),
+      },
+      successCallback: () => logout(),
+      failureCallback: () => logout(),
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 onMounted(() => {

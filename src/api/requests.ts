@@ -1,5 +1,5 @@
-import axios, { HttpStatusCode } from "axios";
-import { accessToken } from "@/api/currentUser";
+import axios from "axios";
+import { accessToken } from "@/api/auth";
 
 interface RequestParams {
   url: string;
@@ -26,13 +26,7 @@ const rqt = ({
     },
   })
     .then((data) => successCallback(data))
-    .catch((err) => {
-      if (err?.response?.data?.code === HttpStatusCode.Unauthorized) {
-        return router.push("login");
-      } else {
-        return failureCallback(err);
-      }
-    });
+    .catch((err) => failureCallback(err));
 };
 
 export default rqt;

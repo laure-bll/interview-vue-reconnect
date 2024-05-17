@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getConnectedUser } from "@/api/currentUser";
+import { getConnectedUser } from "@/api/auth";
 import { beneficiariesEndpoint } from "@/api/endpoints";
 import rqt from "@/api/requests";
 import ErrorAlert from "@/components/ErrorAlert.vue";

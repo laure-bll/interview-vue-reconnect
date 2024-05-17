@@ -18,7 +18,7 @@ const deleteBeneficiary = async (id: string) => {
   await rqt({
     url: `${beneficiariesEndpoint}/${id}`,
     method: "DELETE",
-    successCallback: (data) => {
+    successCallback: () => {
       if (props.refetchData) props.refetchData();
     },
     failureCallback: (err) => {
@@ -35,7 +35,7 @@ const deleteBeneficiary = async (id: string) => {
     <v-card-title> {{ props.name }} </v-card-title>
 
     <v-card-subtitle v-if="createdAt">
-      Date de création : {{ dateFormatter(new Date(createdAt)) }}
+      Date de création : {{ dateFormatter(createdAt) }}
     </v-card-subtitle>
     <v-card-subtitle v-if="creator"> Par : {{ props.creator }} </v-card-subtitle>
 

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { loginEndpoint, backendUrl } from "@/api/endpoints";
+import { loginEndpoint } from "@/api/endpoints";
 import router from "@/router";
 import axios from "axios";
 import ErrorAlert from "@/components/ErrorAlert.vue";
 import { ref, type Ref, reactive } from "vue";
+import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/api/auth";
 
 const loading: Ref<boolean> = ref(false);
 const errorMessage: Ref<null | string> = ref(null);
@@ -35,10 +36,12 @@ const validate = async () => {
       );
 
       const token = JSON.stringify(res.data.token);
-      localStorage.setItem("api_token", token);
+      const refreshToken = JSON.stringify(res.data.refresh_token);
+      localStorage.setItem(ACCESS_TOKEN_KEY, token);
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
       loading.value = false;
-      router.push("dashboard");
-    } catch (err) {
+      window.location.href = "/";
+    } catch (err: any) {
       errorMessage.value = err.toString();
       loading.value = false;
     }
